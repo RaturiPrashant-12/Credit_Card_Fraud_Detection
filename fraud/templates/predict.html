@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Score Transaction • Fraud Detector{% endblock %}
+
+{% block content %}
+<form class="card" method="post" id="txForm">
+  {% csrf_token %}
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+    <h2 style="margin:0;">Score Transaction</h2>
+    <span class="pill"><span class="tag">Step 1</span> Fill &amp; Submit</span>
+  </div>
+
+  {% if form.non_field_errors %}
+    <div class="msg error" style="margin-bottom:10px;">
+      {{ form.non_field_errors }}
+    </div>
+  {% endif %}
+
+  <div class="grid" style="gap:14px">
+    <div>
+      <label for="id_phone_number">Phone number</label>
+      {{ form.phone_number }}
+      {% if form.phone_number.errors %}<div class="msg error">{{ form.phone_number.errors }}</div>{% endif %}
+      <div class="muted" style="margin-top:6px;">{{ form.phone_number.help_text }}</div>
+    </div>
+
+    <div class="row" style="gap:12px;">
+      <div style="flex:1">
+        <label for="id_category">Category</label>
+        {{ form.category }}
+        {% if form.category.errors %}<div class="msg error">{{ form.category.errors }}</div>{% endif %}
+      </div>
+      <div style="flex:0.6">
+        <label for="id_amt">Amount</label>
+        {{ form.amt }}
+        {% if form.amt.errors %}<div class="msg error">{{ form.amt.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="row" style="gap:12px;">
+      <div style="flex:1">
+        <label for="id_city">City</label>
+        {{ form.city }}
+        {% if form.city.errors %}<div class="msg error">{{ form.city.errors }}</div>{% endif %}
+      </div>
+      <div style="flex:0.6">
+        <label for="id_state">State</label>
+        {{ form.state }}
+        {% if form.state.errors %}<div class="msg error">{{ form.state.errors }}</div>{% endif %}
+      </div>
+      <div style="flex:1">
+        <label for="id_job">Job</label>
+        {{ form.job }}
+        {% if form.job.errors %}<div class="msg error">{{ form.job.errors }}</div>{% endif %}
+      </div>
+    </div>
+
+    <div class="row" style="gap:12px;">
+      <div style="flex:0.6">
+        <label for="id_hour_time">Hour (time)</label>
+        {{ form.hour_time }}
+        {% if form.hour_time.errors %}<div class="msg error">{{ form.hour_time.errors }}</div>{% endif %}
+      </div>
+      <div style="flex:0.6">
+        <label for="id_age">Age</label>
+        {{ form.age }}
+        {% if form.age.errors %}<div class="msg error">{{ form.age.errors }}</div>{% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row" style="margin-top:16px;">
+    <button class="btn btn-primary" type="submit">Score transaction</button>
+    <button class="btn btn-muted" type="reset">Clear</button>
+  </div>
+
+  {% if prob is not None and allowed %}
+  <div class="card" style="margin-top:16px; border-color:#14532d;">
+    <strong class="status-ok">Result: Allowed</strong>
+    <div class="muted">Fraud probability: <span class="kbd">{{ prob|floatformat:4 }}</span></div>
+  </div>
+  {% endif %}
+</form>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Verify OTP • Fraud Detector{% endblock %}
+
+{% block content %}
+<form class="card" method="post" id="otpForm" novalidate>
+  {% csrf_token %}
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
+    <h2 style="margin:0;">Verify OTP</h2>
+    <span class="pill"><span class="tag">Step 2</span> Confirm</span>
+  </div>
+
+  <label for="otp_code">Enter 6-digit OTP</label>
+  <input id="otp_code" name="otp_code" type="text" inputmode="numeric" pattern="^\d{6}$" maxlength="6" placeholder="••••••" required />
+
+  <div class="row" style="margin-top:16px;">
+    <button class="btn btn-success" type="submit">Verify</button>
+    <span class="muted">Didn’t get it? Wait a minute and resubmit the transaction.</span>
+  </div>
+</form>
+
+<script>
+  const otp = document.getElementById('otp_code');
+  document.getElementById('otpForm').addEventListener('submit', (e)=>{
+    if(!/^\d{6}$/.test(otp.value.trim())){
+      otp.reportValidity(); e.preventDefault();
+    }
+  });
+</script>
+{% endblock %}

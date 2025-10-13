@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Register{% endblock %}
+{% block content %}
+<form class="card" method="post">
+  {% csrf_token %}
+  <h2>Create account</h2>
+  <label>Username</label>{{ form.username }}
+  <label>Email</label>{{ form.email }}
+  <label>Password</label>{{ form.password }}
+  <label>Phone number</label>{{ form.phone_number }}
+  <div class="row" style="margin-top:12px;">
+    <button class="btn btn-primary" type="submit">Sign up</button>
+    <a class="btn" href="{% url 'login' %}">Login</a>
+  </div>
+</form>
+{% endblock %}
