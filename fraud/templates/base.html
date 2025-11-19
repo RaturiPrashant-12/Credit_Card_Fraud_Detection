@@ -29,14 +29,14 @@
 
     .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px}
     label{display:block; font-weight:600; margin-bottom:8px}
-    input[type="text"], textarea, input[type="time"], input[type="number"], select{
+    input[type="text"], textarea, input[type="time"], input[type="number"], select, input[type="password"], input[type="email"]{
       width:100%; background:var(--input); color:var(--text);
       border:1px solid var(--border); border-radius:10px; padding:12px; font-size:15px;
       outline:none; transition:border .2s ease, box-shadow .2s ease;
     }
-    input[type="text"]:focus, textarea:focus, input[type="time"]:focus, input[type="number"]:focus, select:focus{ border-color:var(--brand); box-shadow:0 0 0 3px #3b82f633 }
+    input:focus, textarea:focus, select:focus{ border-color:var(--brand); box-shadow:0 0 0 3px #3b82f633 }
     textarea{min-height:220px; line-height:1.45; resize:vertical}
-    .row{display:flex; gap:10px; flex-wrap:wrap}
+    .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
     .btn{
       appearance:none; border:1px solid var(--border); background:var(--card);
       color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600;
@@ -68,28 +68,36 @@
 </head>
 <body>
 
-  <!-- Top bar with POST logout -->
-  <div class="row" style="justify-content:flex-end; gap:10px; margin-bottom:10px;">
+  <!-- Top bar -->
+  <div class="row" style="margin-bottom:10px;">
     {% if request.user.is_authenticated %}
       <span class="tag">Hi, {{ request.user.username }}</span>
-      <a class="btn" href="{% url 'transactions' %}">My transactions</a>
+      <a class="btn" href="{% url 'transactions' %}">My Transactions</a>
 
-      <!-- Logout: use POST via hidden form -->
+      <!-- Logout: POST via hidden form -->
       <a class="btn" href="#" onclick="document.getElementById('logout-form').submit(); return false;">Logout</a>
       <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
         {% csrf_token %}
         <input type="hidden" name="next" value="{% url 'login' %}">
       </form>
     {% else %}
-      <a class="btn" href="{% url 'login' %}">Login</a>
-      <a class="btn" href="{% url 'register' %}">Register</a>
+      <div style="margin: 0 auto; text-align:center; width:100%;">
+        <a class="btn btn-primary" href="{% url 'register' %}">Register</a>
+        <a class="btn" href="{% url 'login' %}">Login</a>
+      </div>
     {% endif %}
   </div>
 
   <div class="container">
     <div class="panel">
       <h1>Credit Card Fraud Detector</h1>
-      <p class="sub">Score a transaction. If flagged as risky, we’ll send an OTP to the phone number to verify.</p>
+      <p class="sub">
+        {% if request.user.is_authenticated %}
+          Score a transaction. If flagged as risky, we’ll send an OTP to verify.
+        {% else %}
+          Create an account or login to use the Credit Card Fraud Detection system.
+        {% endif %}
+      </p>
 
       {% if messages %}
       <div class="messages">

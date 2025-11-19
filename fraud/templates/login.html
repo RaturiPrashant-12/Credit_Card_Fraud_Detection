@@ -1,15 +1,37 @@
 {% extends "base.html" %}
 {% block title %}Login{% endblock %}
+
 {% block content %}
-<form class="card" method="post">
-  {% csrf_token %}
-  <h2>Login</h2>
-  {{ form.non_field_errors }}
-  <label>Username</label>{{ form.username }}
-  <label>Password</label>{{ form.password }}
-  <div class="row" style="margin-top:12px;">
-    <button class="btn btn-primary" type="submit">Login</button>
-    <a class="btn" href="{% url 'register' %}">Register</a>
-  </div>
-</form>
+<div class="card" style="max-width:500px; margin:0 auto;">
+  <h2 style="margin-bottom:16px; text-align:center;">Welcome Back</h2>
+
+  {% if form.non_field_errors %}
+    <div class="msg error">
+      {% for error in form.non_field_errors %}
+        <p>{{ error }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    {% if form.username.errors %}
+      <small class="status-bad">{{ form.username.errors.0 }}</small>
+    {% endif %}
+
+    <label for="{{ form.password.id_for_label }}" style="margin-top:10px;">Password</label>
+    {{ form.password }}
+    {% if form.password.errors %}
+      <small class="status-bad">{{ form.password.errors.0 }}</small>
+    {% endif %}
+
+    <div class="row" style="margin-top:20px; justify-content:center;">
+      <button class="btn btn-primary" type="submit">Login</button>
+      <a class="btn" href="{% url 'register' %}">Register</a>
+    </div>
+  </form>
+</div>
 {% endblock %}

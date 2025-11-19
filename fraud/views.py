@@ -1,4 +1,3 @@
-# fraud/views.py
 from datetime import datetime
 from decimal import Decimal
 
@@ -67,7 +66,7 @@ def is_spike_for_user(user, current_amount: Decimal):
     return spike, avg, MULT, MIN_DELTA
 
 
-# ------- Main submit form (logged-in only) -------
+# ------- Main transaction scoring (logged-in only) -------
 @login_required
 def predict_view(request):
     if request.method == "POST":
@@ -77,45 +76,45 @@ def predict_view(request):
             phone = cd["phone_number"].strip()
 
             hour = cd["hour_time"].hour
-            dow = datetime.now().weekday()
+            dow = int(cd["dow"])
 
-            # Minimal feature payload (matches minimal model)
+            # Minimal feature payload (for ML model)
             payload = {
                 "category": cd["category"],
                 "amt": float(cd["amt"]),
                 "city": cd["city"],
-                "state": cd["state"],
-                "job": cd["job"],
+                "card_number": cd["card_number"],
+                "cvv": cd["cvv"],
+                "expiry_date": cd["expiry_date"],
                 "hour": int(hour),
                 "dow": int(dow),
-                "age": int(cd["age"]),
             }
 
-            # ML score (robust to errors)
+            # ML scoring (with fail-safe)
             try:
                 prob = float(score_transaction(payload))
             except Exception as e:
                 prob = 0.0
                 messages.error(request, f"Model error: {e}")
-                # Continue; we still store the transaction
+                # Continue; still store the transaction
 
-            # Rule: spike vs last N user txns
+            # Spike detection rule
             spike, avg_last_n, mult_used, delta_used = is_spike_for_user(request.user, cd["amt"])
 
-            # Combine decisions
+            # Combine rule and ML decision
             is_risky = (prob >= settings.FRAUD_THRESHOLD) or spike
 
-            # Persist transaction (always)
+            # Save the transaction
             txn = Transaction.objects.create(
                 user=request.user,
                 category=cd["category"],
                 amt=cd["amt"],
                 city=cd["city"],
-                state=cd["state"],
-                job=cd["job"],
+                card_number=cd["card_number"],
+                cvv=cd["cvv"],
+                expiry_date=cd["expiry_date"],
                 hour=hour,
                 dow=dow,
-                age=cd["age"],
                 ml_prob=float(prob),
                 rule_avg_last_n=(avg_last_n or None),
                 rule_multiplier_used=mult_used,
@@ -125,33 +124,40 @@ def predict_view(request):
                 final_decision=("challenge" if is_risky else "allowed"),
             )
 
+            # OTP logic if risky
             if is_risky:
                 try:
                     otp_id = send_otp(phone)
                 except (HTTPError, RequestException) as e:
-                    # Could not send OTP — block the txn
+                    # Could not send OTP — block txn
                     txn.final_decision = "blocked"
                     txn.notes = f"OTP send failed: {e}"
                     txn.save(update_fields=["final_decision", "notes"])
                     messages.error(request, f"Could not send OTP: {e}")
-                    return render(request, "predict.html", {"form": form, "prob": prob, "allowed": False})
+                    return render(
+                        request, "predict.html", {"form": form, "prob": prob, "allowed": False}
+                    )
 
                 txn.otp_id = otp_id
                 txn.save(update_fields=["otp_id"])
 
-                # Remember which txn we're verifying
+                # Store OTP info in session
                 request.session["last_txn_id"] = txn.id
                 request.session["otp_id"] = otp_id
                 request.session["phone_number"] = phone
                 request.session["fraud_prob"] = prob
-                messages.warning(request, f"⚠️ Suspicious transaction (p={prob:.2f}). OTP sent.")
+
+                messages.warning(
+                    request,
+                    f"⚠️ Suspicious transaction detected (p={prob:.2f}). OTP sent for verification.",
+                )
                 return redirect("verify_otp")
+
             else:
-                messages.success(request, f"✅ Allowed (fraud prob={prob:.2f}).")
+                messages.success(request, f"✅ Transaction allowed (fraud prob={prob:.2f}).")
                 return render(request, "predict.html", {"form": form, "prob": prob, "allowed": True})
 
         else:
-            # Invalid form – show errors
             print("FORM ERRORS:", form.errors.as_json())
             messages.error(request, "Please fix the errors below.")
             return render(request, "predict.html", {"form": form})
@@ -161,7 +167,7 @@ def predict_view(request):
     return render(request, "predict.html", {"form": form})
 
 
-# ------- OTP verification (updates the stored txn) -------
+# ------- OTP Verification -------
 @login_required
 def verify_otp_view(request):
     otp_id = request.session.get("otp_id")
@@ -189,7 +195,6 @@ def verify_otp_view(request):
                 txn.otp_verified = True
                 txn.final_decision = "approved"
                 txn.save(update_fields=["otp_verified", "final_decision"])
-                # clear session context
                 for k in ["otp_id", "last_txn_id", "phone_number", "fraud_prob"]:
                     request.session.pop(k, None)
                 messages.success(request, "✅ OTP verified. Transaction approved.")
@@ -197,7 +202,7 @@ def verify_otp_view(request):
             else:
                 txn.final_decision = "blocked"
                 txn.save(update_fields=["final_decision"])
-                messages.error(request, "❌ Incorrect/expired OTP. Transaction blocked.")
+                messages.error(request, "❌ Incorrect or expired OTP. Transaction blocked.")
                 return redirect("predict")
     else:
         form = OTPForm()
@@ -205,8 +210,8 @@ def verify_otp_view(request):
     return render(request, "verify_otp.html", {"form": form})
 
 
-# ------- Simple history page -------
+# ------- Transaction History -------
 @login_required
 def transactions_view(request):
-    txns = Transaction.objects.filter(user=request.user)[:50]
+    txns = Transaction.objects.filter(user=request.user).order_by("-created_at")[:50]
     return render(request, "transactions.html", {"txns": txns})

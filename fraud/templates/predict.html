@@ -16,68 +16,110 @@
   {% endif %}
 
   <div class="grid" style="gap:14px">
+    <!-- Phone number -->
     <div>
-      <label for="id_phone_number">Phone number</label>
+      <label for="id_phone_number">Phone Number</label>
       {{ form.phone_number }}
-      {% if form.phone_number.errors %}<div class="msg error">{{ form.phone_number.errors }}</div>{% endif %}
+      {% if form.phone_number.errors %}
+        <div class="msg error">{{ form.phone_number.errors }}</div>
+      {% endif %}
       <div class="muted" style="margin-top:6px;">{{ form.phone_number.help_text }}</div>
     </div>
 
+    <!-- Category + Amount -->
     <div class="row" style="gap:12px;">
       <div style="flex:1">
         <label for="id_category">Category</label>
         {{ form.category }}
-        {% if form.category.errors %}<div class="msg error">{{ form.category.errors }}</div>{% endif %}
+        {% if form.category.errors %}
+          <div class="msg error">{{ form.category.errors }}</div>
+        {% endif %}
       </div>
       <div style="flex:0.6">
         <label for="id_amt">Amount</label>
         {{ form.amt }}
-        {% if form.amt.errors %}<div class="msg error">{{ form.amt.errors }}</div>{% endif %}
+        {% if form.amt.errors %}
+          <div class="msg error">{{ form.amt.errors }}</div>
+        {% endif %}
       </div>
     </div>
 
+    <!-- City + Card details -->
     <div class="row" style="gap:12px;">
       <div style="flex:1">
         <label for="id_city">City</label>
         {{ form.city }}
-        {% if form.city.errors %}<div class="msg error">{{ form.city.errors }}</div>{% endif %}
-      </div>
-      <div style="flex:0.6">
-        <label for="id_state">State</label>
-        {{ form.state }}
-        {% if form.state.errors %}<div class="msg error">{{ form.state.errors }}</div>{% endif %}
+        {% if form.city.errors %}
+          <div class="msg error">{{ form.city.errors }}</div>
+        {% endif %}
       </div>
       <div style="flex:1">
-        <label for="id_job">Job</label>
-        {{ form.job }}
-        {% if form.job.errors %}<div class="msg error">{{ form.job.errors }}</div>{% endif %}
+        <label for="id_card_number">Card Number</label>
+        {{ form.card_number }}
+        {% if form.card_number.errors %}
+          <div class="msg error">{{ form.card_number.errors }}</div>
+        {% endif %}
       </div>
     </div>
 
+    <!-- CVV + Expiry Date -->
+    <div class="row" style="gap:12px;">
+      <div style="flex:0.5">
+        <label for="id_cvv">CVV</label>
+        {{ form.cvv }}
+        {% if form.cvv.errors %}
+          <div class="msg error">{{ form.cvv.errors }}</div>
+        {% endif %}
+      </div>
+      <div style="flex:0.5">
+        <label for="id_expiry_date">Expiry Date (MM/YYYY)</label>
+        {{ form.expiry_date }}
+        {% if form.expiry_date.errors %}
+          <div class="msg error">{{ form.expiry_date.errors }}</div>
+        {% endif %}
+      </div>
+    </div>
+
+    <!-- Hour and Day of Week -->
     <div class="row" style="gap:12px;">
       <div style="flex:0.6">
         <label for="id_hour_time">Hour (time)</label>
         {{ form.hour_time }}
-        {% if form.hour_time.errors %}<div class="msg error">{{ form.hour_time.errors }}</div>{% endif %}
+        {% if form.hour_time.errors %}
+          <div class="msg error">{{ form.hour_time.errors }}</div>
+        {% endif %}
       </div>
       <div style="flex:0.6">
-        <label for="id_age">Age</label>
-        {{ form.age }}
-        {% if form.age.errors %}<div class="msg error">{{ form.age.errors }}</div>{% endif %}
+        <label for="id_dow">Day of Week</label>
+        {{ form.dow }}
+        {% if form.dow.errors %}
+          <div class="msg error">{{ form.dow.errors }}</div>
+        {% endif %}
       </div>
     </div>
   </div>
 
   <div class="row" style="margin-top:16px;">
-    <button class="btn btn-primary" type="submit">Score transaction</button>
+    <button class="btn btn-primary" type="submit">Score Transaction</button>
     <button class="btn btn-muted" type="reset">Clear</button>
   </div>
 
   {% if prob is not None and allowed %}
-  <div class="card" style="margin-top:16px; border-color:#14532d;">
-    <strong class="status-ok">Result: Allowed</strong>
-    <div class="muted">Fraud probability: <span class="kbd">{{ prob|floatformat:4 }}</span></div>
-  </div>
+    <div class="card" style="margin-top:16px; border-color:#14532d;">
+      <strong class="status-ok">Result: Allowed</strong>
+      <div class="muted">
+        Fraud probability:
+        <span class="kbd">{{ prob|floatformat:4 }}</span>
+      </div>
+    </div>
+  {% elif prob is not None and not allowed %}
+    <div class="card" style="margin-top:16px; border-color:#7f1d1d;">
+      <strong class="status-bad">Result: Blocked / Challenged</strong>
+      <div class="muted">
+        Fraud probability:
+        <span class="kbd">{{ prob|floatformat:4 }}</span>
+      </div>
+    </div>
   {% endif %}
 </form>
 {% endblock %}

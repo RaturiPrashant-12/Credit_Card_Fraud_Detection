@@ -1,16 +1,45 @@
 {% extends "base.html" %}
 {% block title %}Register{% endblock %}
+
 {% block content %}
-<form class="card" method="post">
-  {% csrf_token %}
-  <h2>Create account</h2>
-  <label>Username</label>{{ form.username }}
-  <label>Email</label>{{ form.email }}
-  <label>Password</label>{{ form.password }}
-  <label>Phone number</label>{{ form.phone_number }}
-  <div class="row" style="margin-top:12px;">
-    <button class="btn btn-primary" type="submit">Sign up</button>
-    <a class="btn" href="{% url 'login' %}">Login</a>
-  </div>
-</form>
+<div class="card" style="max-width:500px; margin:0 auto;">
+  <h2 style="margin-bottom:16px; text-align:center;">Create Account</h2>
+  
+  {% if form.errors %}
+    <div class="msg error">
+      <strong>Please correct the errors below:</strong>
+      <ul style="margin:8px 0 0 16px;">
+        {% for field in form %}
+          {% for error in field.errors %}
+            <li>{{ field.label }}: {{ error }}</li>
+          {% endfor %}
+        {% endfor %}
+      </ul>
+    </div>
+  {% endif %}
+
+  <form method="post" novalidate>
+    {% csrf_token %}
+    
+    <label for="{{ form.username.id_for_label }}">Username</label>
+    {{ form.username }}
+    <small class="muted">Choose a unique username for your account.</small>
+    
+    <label for="{{ form.email.id_for_label }}" style="margin-top:10px;">Email</label>
+    {{ form.email }}
+    
+    <label for="{{ form.password.id_for_label }}" style="margin-top:10px;">Password</label>
+    {{ form.password }}
+    <small class="muted">Use at least 8 characters, including letters and numbers.</small>
+
+    <label for="{{ form.phone_number.id_for_label }}" style="margin-top:10px;">Phone Number</label>
+    {{ form.phone_number }}
+    <small class="muted">We'll use this number to send OTP verification codes.</small>
+
+    <div class="row" style="margin-top:20px; justify-content:center;">
+      <button class="btn btn-primary" type="submit">Sign Up</button>
+      <a class="btn" href="{% url 'login' %}">Login</a>
+    </div>
+  </form>
+</div>
 {% endblock %}
