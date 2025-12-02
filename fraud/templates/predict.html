@@ -2,124 +2,192 @@
 {% block title %}Score Transaction • Fraud Detector{% endblock %}
 
 {% block content %}
-<form class="card" method="post" id="txForm">
+<form class="card" method="post" id="txForm" novalidate>
   {% csrf_token %}
-  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
-    <h2 style="margin:0;">Score Transaction</h2>
-    <span class="pill"><span class="tag">Step 1</span> Fill &amp; Submit</span>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+    <div>
+      <h2 style="margin:0;">Score Transaction</h2>
+      <div class="muted" style="margin-top:6px;">Fill the details below to score a transaction</div>
+    </div>
+    <div class="pill"><span class="tag">Step 1</span> <span style="opacity:.8">Fill &amp; Submit</span></div>
   </div>
 
   {% if form.non_field_errors %}
-    <div class="msg error" style="margin-bottom:10px;">
-      {{ form.non_field_errors }}
-    </div>
+    <div class="msg error" style="margin-bottom:10px;">{{ form.non_field_errors }}</div>
   {% endif %}
 
-  <div class="grid" style="gap:14px">
-    <!-- Phone number -->
+  <div class="grid grid-2" style="gap:14px;">
     <div>
-      <label for="id_phone_number">Phone Number</label>
-      {{ form.phone_number }}
-      {% if form.phone_number.errors %}
-        <div class="msg error">{{ form.phone_number.errors }}</div>
-      {% endif %}
-      <div class="muted" style="margin-top:6px;">{{ form.phone_number.help_text }}</div>
+      <!-- Left column -->
+      <div class="card" style="padding:16px; margin-bottom:12px;">
+        <label for="id_phone_number">Phone Number</label>
+        {{ form.phone_number }}
+        {% if form.phone_number.errors %}<div class="msg error">{{ form.phone_number.errors }}</div>{% endif %}
+        <div class="muted help">{{ form.phone_number.help_text }}</div>
+
+        <div style="height:12px"></div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="id_category">Category</label>
+            {{ form.category }}
+            {% if form.category.errors %}<div class="msg error">{{ form.category.errors }}</div>{% endif %}
+          </div>
+          <div class="form-col" style="flex:0.6;">
+            <label for="id_amt">Amount</label>
+            {{ form.amt }}
+            {% if form.amt.errors %}<div class="msg error">{{ form.amt.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="form-row">
+          <div class="form-col">
+            <label for="id_city">City</label>
+            {{ form.city }}
+            {% if form.city.errors %}<div class="msg error">{{ form.city.errors }}</div>{% endif %}
+          </div>
+          <div class="form-col">
+            <label for="id_card_number">Card Number</label>
+            {{ form.card_number }}
+            {% if form.card_number.errors %}<div class="msg error">{{ form.card_number.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="form-row">
+          <div class="form-col" style="flex:0.5;">
+            <label for="id_cvv">CVV</label>
+            {{ form.cvv }}
+            {% if form.cvv.errors %}<div class="msg error">{{ form.cvv.errors }}</div>{% endif %}
+          </div>
+          <div class="form-col" style="flex:0.5;">
+            <label for="id_expiry_date">Expiry Date (MM/YYYY)</label>
+            {{ form.expiry_date }}
+            {% if form.expiry_date.errors %}<div class="msg error">{{ form.expiry_date.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <!-- HOUR (auto-filled) -->
+        <div class="form-row">
+          <div class="form-col" style="flex:0.6;">
+            <label for="id_hour_time">Hour (Current Time)</label>
+            {{ form.hour_time }}
+            <div class="muted">Auto-detected from browser time — read-only</div>
+            {% if form.hour_time.errors %}<div class="msg error">{{ form.hour_time.errors }}</div>{% endif %}
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:16px;">
+          <button class="btn btn-primary" type="submit">Score Transaction</button>
+          <button class="btn btn-muted" type="reset">Clear</button>
+        </div>
+      </div>
     </div>
 
-    <!-- Category + Amount -->
-    <div class="row" style="gap:12px;">
-      <div style="flex:1">
-        <label for="id_category">Category</label>
-        {{ form.category }}
-        {% if form.category.errors %}
-          <div class="msg error">{{ form.category.errors }}</div>
-        {% endif %}
-      </div>
-      <div style="flex:0.6">
-        <label for="id_amt">Amount</label>
-        {{ form.amt }}
-        {% if form.amt.errors %}
-          <div class="msg error">{{ form.amt.errors }}</div>
-        {% endif %}
-      </div>
-    </div>
+    <div>
+      <!-- Right column: summary -->
+      <div class="card" style="padding:16px;">
+        <h3 style="margin-bottom:6px;">Overview</h3>
+        <p class="muted" style="margin-top:0;">Quick summary of scoring and tips.</p>
 
-    <!-- City + Card details -->
-    <div class="row" style="gap:12px;">
-      <div style="flex:1">
-        <label for="id_city">City</label>
-        {{ form.city }}
-        {% if form.city.errors %}
-          <div class="msg error">{{ form.city.errors }}</div>
-        {% endif %}
-      </div>
-      <div style="flex:1">
-        <label for="id_card_number">Card Number</label>
-        {{ form.card_number }}
-        {% if form.card_number.errors %}
-          <div class="msg error">{{ form.card_number.errors }}</div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- CVV + Expiry Date -->
-    <div class="row" style="gap:12px;">
-      <div style="flex:0.5">
-        <label for="id_cvv">CVV</label>
-        {{ form.cvv }}
-        {% if form.cvv.errors %}
-          <div class="msg error">{{ form.cvv.errors }}</div>
-        {% endif %}
-      </div>
-      <div style="flex:0.5">
-        <label for="id_expiry_date">Expiry Date (MM/YYYY)</label>
-        {{ form.expiry_date }}
-        {% if form.expiry_date.errors %}
-          <div class="msg error">{{ form.expiry_date.errors }}</div>
-        {% endif %}
-      </div>
-    </div>
-
-    <!-- Hour and Day of Week -->
-    <div class="row" style="gap:12px;">
-      <div style="flex:0.6">
-        <label for="id_hour_time">Hour (time)</label>
-        {{ form.hour_time }}
-        {% if form.hour_time.errors %}
-          <div class="msg error">{{ form.hour_time.errors }}</div>
-        {% endif %}
-      </div>
-      <div style="flex:0.6">
-        <label for="id_dow">Day of Week</label>
-        {{ form.dow }}
-        {% if form.dow.errors %}
-          <div class="msg error">{{ form.dow.errors }}</div>
+        {% if prob is not None and allowed %}
+          <div class="card" style="margin-top:12px; border-color:#14532d;">
+            <strong class="status-ok">Result: Allowed</strong>
+            <div class="muted" style="margin-top:6px;">Fraud probability: <span class="kbd">{{ prob|floatformat:4 }}</span></div>
+          </div>
+        {% elif prob is not None and not allowed %}
+          <div class="card" style="margin-top:12px; border-color:#7f1d1d;">
+            <strong style="color:#fca5a5">Result: Blocked / Challenged</strong>
+            <div class="muted" style="margin-top:6px;">Fraud probability: <span class="kbd">{{ prob|floatformat:4 }}</span></div>
+          </div>
+        {% else %}
+          <div style="margin-top:12px;" class="muted">No result yet. Submit the form to score a transaction.</div>
         {% endif %}
       </div>
     </div>
   </div>
-
-  <div class="row" style="margin-top:16px;">
-    <button class="btn btn-primary" type="submit">Score Transaction</button>
-    <button class="btn btn-muted" type="reset">Clear</button>
-  </div>
-
-  {% if prob is not None and allowed %}
-    <div class="card" style="margin-top:16px; border-color:#14532d;">
-      <strong class="status-ok">Result: Allowed</strong>
-      <div class="muted">
-        Fraud probability:
-        <span class="kbd">{{ prob|floatformat:4 }}</span>
-      </div>
-    </div>
-  {% elif prob is not None and not allowed %}
-    <div class="card" style="margin-top:16px; border-color:#7f1d1d;">
-      <strong class="status-bad">Result: Blocked / Challenged</strong>
-      <div class="muted">
-        Fraud probability:
-        <span class="kbd">{{ prob|floatformat:4 }}</span>
-      </div>
-    </div>
-  {% endif %}
 </form>
+
+<!-- -------------------------- -->
+<!-- AUTO FILL TIME + DAY-OF-WEEK -->
+<!-- -------------------------- -->
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const now = new Date();
+
+  // Auto-fill TIME
+  const hourField = document.getElementById('id_hour_time');
+  if (hourField) {
+      let hh = String(now.getHours()).padStart(2, '0');
+      let mm = String(now.getMinutes()).padStart(2, '0');
+      hourField.value = `${hh}:${mm}`;
+      hourField.readOnly = true;
+      hourField.style.opacity = '0.9';
+      hourField.style.cursor = 'not-allowed';
+  }
+
+  // Hidden Day-of-week
+  let dowField = document.createElement('input');
+  dowField.type = "hidden";
+  dowField.name = "{{ form.dow.html_name }}";
+  dowField.value = now.getDay();
+  document.getElementById("txForm").appendChild(dowField);
+});
+</script>
+
+<!-- -------------------------- -->
+<!-- AUTO-LOCATION SCRIPT STARTS HERE -->
+<!-- -------------------------- -->
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  // Utility to set city input
+  function setCity(cityName) {
+    if (!cityName) return;
+    const field = document.getElementById('id_city');
+    if (field) field.value = cityName;
+  }
+
+  // Fallback IP-based lookup
+  function fallbackIP() {
+    fetch("https://ipapi.co/json/")
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.city) setCity(data.city);
+      })
+      .catch(() => {});
+  }
+
+  // Reverse geocode via OpenStreetMap
+  function reverseGeo(lat, lon) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+      .then(r => r.json())
+      .then(data => {
+        let addr = data.address || {};
+        let city = addr.city || addr.town || addr.village || addr.state_district || addr.state;
+        if (city) setCity(city);
+        else fallbackIP();
+      })
+      .catch(() => fallbackIP());
+  }
+
+  // Try browser location first
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function (pos) {
+        let lat = pos.coords.latitude;
+        let lon = pos.coords.longitude;
+        reverseGeo(lat, lon);
+    }, function () {
+        fallbackIP();
+    }, { timeout: 7000 });
+  } else {
+    fallbackIP();
+  }
+});
+</script>
+
 {% endblock %}

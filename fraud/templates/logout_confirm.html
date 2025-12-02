@@ -3,7 +3,7 @@
 <form id="logoutForm" method="post" action="{% url 'logout' %}">
   {% csrf_token %}
   <input type="hidden" name="next" value="{% url 'login' %}">
-  <noscript><button type="submit">Confirm logout</button></noscript>
+  <noscript><button type="submit" class="btn">Confirm logout</button></noscript>
 </form>
 <script>document.getElementById('logoutForm').submit();</script>
 {% endblock %}

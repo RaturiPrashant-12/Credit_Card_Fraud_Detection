@@ -1,115 +1,108 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <title>{% block title %}Credit Card Fraud Detector{% endblock %}</title>
+
+  <!-- Theme CSS -->
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+  <!-- Inline fallback critical styles -->
   <style>
-    :root{
-      --bg:#0f172a; --panel:#0b1220; --card:#111827; --muted:#94a3b8; --text:#e5e7eb; --brand:#3b82f6; --ok:#10b981; --warn:#f59e0b; --err:#ef4444;
-      --input:#1f2937; --border:#334155;
-    }
-    *{box-sizing:border-box}
+    /* ensure body BG uses static image first, fallback gradients below */
     body{
-      margin:0; font-family: ui-sans-serif,system-ui,Segoe UI,Roboto,Helvetica,Arial; color:var(--text);
-      background: radial-gradient(1200px 800px at 10% -10%, #1f2937 0, transparent 60%), linear-gradient(180deg, #0b1220, #0f172a 80%);
-      min-height:100dvh; padding:24px;
+      background-image:
+        url('{% static "images/background.png" %}'),
+        radial-gradient(1200px 800px at 10% -10%, #1f2937 0, transparent 60%),
+        linear-gradient(180deg, #0b1220, #0f172a 80%);
+      background-size: cover, 1200px 800px, auto;
+      background-repeat: no-repeat, no-repeat, no-repeat;
+      background-attachment: fixed, scroll, scroll;
+      background-position: center center, 10% -10%, center;
     }
-    .container{max-width:980px; margin:0 auto;}
-    .panel{
-      backdrop-filter: blur(6px);
-      background: color-mix(in srgb, var(--panel) 80%, transparent);
-      border:1px solid var(--border); border-radius:16px; padding:20px;
-      box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    }
-    h1{font-size: clamp(22px, 2.6vw, 32px); margin:0 0 8px 0;}
-    .sub{color:var(--muted); margin:0 0 18px 0}
-    .grid{display:grid; gap:16px}
-    @media (min-width:920px){ .grid-2{grid-template-columns: 1.2fr .8fr} }
-
-    .card{background:var(--card); border:1px solid var(--border); border-radius:14px; padding:16px}
-    label{display:block; font-weight:600; margin-bottom:8px}
-    input[type="text"], textarea, input[type="time"], input[type="number"], select, input[type="password"], input[type="email"]{
-      width:100%; background:var(--input); color:var(--text);
-      border:1px solid var(--border); border-radius:10px; padding:12px; font-size:15px;
-      outline:none; transition:border .2s ease, box-shadow .2s ease;
-    }
-    input:focus, textarea:focus, select:focus{ border-color:var(--brand); box-shadow:0 0 0 3px #3b82f633 }
-    textarea{min-height:220px; line-height:1.45; resize:vertical}
-    .row{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end;}
-    .btn{
-      appearance:none; border:1px solid var(--border); background:var(--card);
-      color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600;
-      transition:transform .04s ease, background .2s ease, border-color .2s ease;
-      text-decoration:none; display:inline-block;
-    }
-    .btn:hover{ background:#0f172a }
-    .btn:active{ transform: translateY(1px) }
-    .btn-primary{ background:var(--brand); border-color:#2563eb; color:white }
-    .btn-primary:hover{ background:#2563eb }
-    .btn-success{ background:var(--ok); border-color:#059669; color:white }
-    .btn-muted{ color:var(--muted) }
-    .tag{display:inline-block; padding:4px 8px; border-radius:999px; font-size:12px; border:1px solid var(--border); color:var(--muted)}
-    .muted{color:var(--muted)}
-    .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace; background:#0b1220; border:1px solid var(--border); padding:2px 6px; border-radius:6px}
-
-    /* messages */
-    .messages{display:grid; gap:10px; margin:10px 0 0}
-    .msg{border-radius:10px; padding:10px 12px; border:1px solid var(--border)}
-    .msg.success{background:#052e1f; border-color:#14532d}
-    .msg.error{background:#3b0a0a; border-color:#7f1d1d}
-    .msg.warning{background:#3a2a03; border-color:#713f12}
-    .msg.info{background:#0b1220; border-color:var(--border)}
-    .status-ok{color:var(--ok)}
-    .status-bad{color:#fca5a5}
-    .pill{display:inline-flex; align-items:center; gap:8px; padding:8px 10px; border-radius:999px; border:1px solid var(--border); background:#0b1220}
   </style>
+
   {% block head %}{% endblock %}
 </head>
 <body>
+  <header class="topbar container">
+    <div class="brand-area">
+      <span class="brand">Credit Card Fraud Detector</span>
+      <div class="muted small">Secure · Fast · Explainable</div>
+    </div>
 
-  <!-- Top bar -->
-  <div class="row" style="margin-bottom:10px;">
-    {% if request.user.is_authenticated %}
-      <span class="tag">Hi, {{ request.user.username }}</span>
-      <a class="btn" href="{% url 'transactions' %}">My Transactions</a>
+    <nav class="nav">
+      {% if request.user.is_authenticated %}
+        <span class="tag">Hi, {{ request.user.username }}</span>
+        <a class="btn" href="{% url 'transactions' %}">My Transactions</a>
 
-      <!-- Logout: POST via hidden form -->
-      <a class="btn" href="#" onclick="document.getElementById('logout-form').submit(); return false;">Logout</a>
-      <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
-        {% csrf_token %}
-        <input type="hidden" name="next" value="{% url 'login' %}">
-      </form>
-    {% else %}
-      <div style="margin: 0 auto; text-align:center; width:100%;">
+        <!-- Logout uses POST via hidden form -->
+        <a class="btn" href="#" id="logoutBtn">Logout</a>
+        <form id="logout-form" method="post" action="{% url 'logout' %}" style="display:none;">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{% url 'login' %}">
+        </form>
+      {% else %}
         <a class="btn btn-primary" href="{% url 'register' %}">Register</a>
         <a class="btn" href="{% url 'login' %}">Login</a>
-      </div>
-    {% endif %}
-  </div>
+      {% endif %}
+    </nav>
+  </header>
 
-  <div class="container">
-    <div class="panel">
-      <h1>Credit Card Fraud Detector</h1>
-      <p class="sub">
-        {% if request.user.is_authenticated %}
-          Score a transaction. If flagged as risky, we’ll send an OTP to verify.
-        {% else %}
-          Create an account or login to use the Credit Card Fraud Detection system.
-        {% endif %}
-      </p>
+  <main class="container" style="padding-top:18px; padding-bottom:36px;">
+    <section class="panel">
+      <div class="header-hero">
+        <div>
+          <h1>Credit Card Fraud Detector</h1>
+          <p class="sub">
+            {% if request.user.is_authenticated %}
+              Score a transaction. If flagged as risky, we’ll send an OTP to verify.
+            {% else %}
+              Create an account or login to use the Credit Card Fraud Detection system.
+            {% endif %}
+          </p>
+        </div>
+        <div class="help-pill">
+          <span class="pill"><strong>Tip</strong> Use international phone format (+91...)</span>
+        </div>
+      </div>
 
       {% if messages %}
-      <div class="messages">
-        {% for message in messages %}
-          <div class="msg {{ message.tags|default:'info' }}">{{ message }}</div>
-        {% endfor %}
-      </div>
+        <div class="messages" style="margin-top:10px;">
+          {% for message in messages %}
+            <div class="msg {{ message.tags|default:'info' }}">{{ message }}</div>
+          {% endfor %}
+        </div>
       {% endif %}
 
       {% block content %}{% endblock %}
-    </div>
-  </div>
+    </section>
+  </main>
+
+  <footer class="page-footer container">
+    <div class="muted small">Built with ❤️ — Keep sensitive data out of public repos.</div>
+  </footer>
+
+  <!-- Small JS: attach .input class to Django-rendered inputs/selects so CSS applies -->
+  <script>
+    document.addEventListener('DOMContentLoaded', ()=> {
+      const selectors = 'input, select, textarea';
+      document.querySelectorAll(selectors).forEach(el=>{
+        // skip hidden inputs and CSRF
+        if (el.type === 'hidden') return;
+        // if the element already has classes we leave them but ensure 'input' exists
+        if (!el.classList.contains('input')) el.classList.add('input');
+      });
+
+      const logoutBtn = document.getElementById('logoutBtn');
+      if (logoutBtn) logoutBtn.addEventListener('click', (e)=>{
+        e.preventDefault();
+        document.getElementById('logout-form').submit();
+      });
+    });
+  </script>
 
   {% block scripts %}{% endblock %}
 </body>

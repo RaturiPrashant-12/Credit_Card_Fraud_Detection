@@ -4,17 +4,20 @@
 {% block content %}
 <form class="card" method="post" id="otpForm" novalidate>
   {% csrf_token %}
-  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px;">
-    <h2 style="margin:0;">Verify OTP</h2>
-    <span class="pill"><span class="tag">Step 2</span> Confirm</span>
+  <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+    <div>
+      <h2 style="margin:0;">Verify OTP</h2>
+      <div class="muted" style="margin-top:6px;">Enter the 6-digit code we sent to your phone</div>
+    </div>
+    <div class="pill"><span class="tag">Step 2</span> Confirm</div>
   </div>
 
   <label for="otp_code">Enter 6-digit OTP</label>
-  <input id="otp_code" name="otp_code" type="text" inputmode="numeric" pattern="^\d{6}$" maxlength="6" placeholder="••••••" required />
+  <input id="otp_code" name="otp_code" type="text" inputmode="numeric" pattern="^\d{6}$" maxlength="6" placeholder="●●●●●●" class="input" required />
 
   <div class="row" style="margin-top:16px;">
     <button class="btn btn-success" type="submit">Verify</button>
-    <span class="muted">Didn’t get it? Wait a minute and resubmit the transaction.</span>
+    <a class="btn btn-muted" href="#" onclick="return false;">Didn’t get it? Wait a minute and retry.</a>
   </div>
 </form>
 

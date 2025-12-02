@@ -3,45 +3,47 @@
 {% block content %}
 <div class="card">
   <h2 style="margin-top:0;">Recent Transactions</h2>
-  <table style="width:100%; border-collapse:collapse;">
-    <thead>
-      <tr>
-        <th align="left">When</th>
-        <th align="right">Amount</th>
-        <th align="left">Category</th>
-        <th align="left">City</th>
-        <th align="left">Card Number</th>
-        <th align="left">CVV</th>
-        <th align="left">Expiry Date</th>
-        <th align="right">ML p</th>
-        <th align="left">Rule</th>
-        <th align="left">Decision</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for t in txns %}
-      <tr>
-        <td>{{ t.created_at|date:"Y-m-d H:i" }}</td>
-        <td align="right">{{ t.amt }}</td>
-        <td>{{ t.category }}</td>
-        <td>{{ t.city }}</td>
-        <td>{{ t.card_number }}</td>
-        <td>{{ t.cvv }}</td>
-        <td>{{ t.expiry_date }}</td>
-        <td align="right">{{ t.ml_prob|floatformat:3 }}</td>
-        <td>
-          {% if t.rule_flag %}
-            spike vs avg {{ t.rule_avg_last_n|floatformat:2 }} ×{{ t.rule_multiplier_used|floatformat:1 }}
-          {% else %}
-            —
-          {% endif %}
-        </td>
-        <td>{{ t.get_final_decision_display }}</td>
-      </tr>
-    {% empty %}
-      <tr><td colspan="10" class="muted">No transactions yet.</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
+  <div style="overflow-x:auto; margin-top:8px;">
+    <table>
+      <thead>
+        <tr>
+          <th align="left">When</th>
+          <th align="right">Amount</th>
+          <th align="left">Category</th>
+          <th align="left">City</th>
+          <th align="left">Card Number</th>
+          <th align="left">CVV</th>
+          <th align="left">Expiry</th>
+          <th align="right">ML p</th>
+          <th align="left">Rule</th>
+          <th align="left">Decision</th>
+        </tr>
+      </thead>
+      <tbody>
+      {% for t in txns %}
+        <tr>
+          <td>{{ t.created_at|date:"Y-m-d H:i" }}</td>
+          <td align="right">{{ t.amt }}</td>
+          <td>{{ t.category }}</td>
+          <td>{{ t.city }}</td>
+          <td>{{ t.card_number }}</td>
+          <td>{{ t.cvv }}</td>
+          <td>{{ t.expiry_date }}</td>
+          <td align="right">{{ t.ml_prob|floatformat:3 }}</td>
+          <td>
+            {% if t.rule_flag %}
+              spike vs avg {{ t.rule_avg_last_n|floatformat:2 }} ×{{ t.rule_multiplier_used|floatformat:1 }}
+            {% else %}
+              —
+            {% endif %}
+          </td>
+          <td>{{ t.get_final_decision_display }}</td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="10" class="muted">No transactions yet.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
 </div>
 {% endblock %}
